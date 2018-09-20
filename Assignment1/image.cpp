@@ -11,6 +11,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <float.h>
+#include <iostream>
+using namespace std;
 
 /**
  * Image
@@ -93,9 +95,12 @@ void Image::Write(char* fname){
     }
 }
 
-void Image::AddNoise (double factor)
-{
-    /* WORK HERE */
+void Image::AddNoise (double factor) {
+    for(int i = 0; i < num_pixels; i++) {
+        // maybe somehow randomly select pixels to brighten, darken, or do something like that
+        
+        //data.pixels[i]
+    }
 }
 
 void Image::Brighten (double factor)
@@ -125,6 +130,7 @@ void Image::ChangeContrast (double factor)
     // get final mean luminance
     float averageLuminance = total / num_pixels;
     
+    
 }
 
 
@@ -137,12 +143,15 @@ void Image::ChangeSaturation(double factor)
 Image* Image::Crop(int x, int y, int w, int h)
 {
     // the final cropped version of the original image
-    Image *croppedImage = new Image(x, y);
+    Image *croppedImage = new Image(w, h);
     
     for(int j = y; j < y + h; j++) {
         for(int i = x; i < x + w; i++) {
             // starting at the (i, j) in the original image and at the origin in the cropped image - getting/setting locations relative to those points
-            croppedImage->SetPixel(i - x, j - y, data.pixels[j * h + i]);
+            cout << "new image x: " << i - x << endl;
+            cout << "new image y: " << j - y << endl;
+            cout << "pixel location: " << j * w + i << endl;
+            croppedImage->SetPixel(i - x, j - y, GetPixel(i, j));
         }
     }
     return croppedImage;
