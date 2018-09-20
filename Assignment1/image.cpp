@@ -12,6 +12,8 @@
 #include <string.h>
 #include <float.h>
 #include <iostream>
+//#include <cstdlib>
+//#include <ctime>
 using namespace std;
 
 /**
@@ -96,10 +98,17 @@ void Image::Write(char* fname){
 }
 
 void Image::AddNoise (double factor) {
-    for(int i = 0; i < num_pixels; i++) {
-        // maybe somehow randomly select pixels to brighten, darken, or do something like that
-        
-        //data.pixels[i]
+    srand(time(NULL));
+    
+    // don't want to add any noise if the factor is 0
+    if (factor == 0.0) {
+        return;
+    }
+    
+    // want to modify half of the total pixels in the image
+    for(int i = 0; i < num_pixels * (factor / 2); i++) {
+        // randomly select the pixels to modify
+        data.pixels[rand() % num_pixels] = PixelRandom();
     }
 }
 
