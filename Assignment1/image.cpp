@@ -148,9 +148,6 @@ Image* Image::Crop(int x, int y, int w, int h)
     for(int j = y; j < y + h; j++) {
         for(int i = x; i < x + w; i++) {
             // starting at the (i, j) in the original image and at the origin in the cropped image - getting/setting locations relative to those points
-            cout << "new image x: " << i - x << endl;
-            cout << "new image y: " << j - y << endl;
-            cout << "pixel location: " << j * w + i << endl;
             croppedImage->SetPixel(i - x, j - y, GetPixel(i, j));
         }
     }
