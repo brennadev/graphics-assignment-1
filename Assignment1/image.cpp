@@ -138,8 +138,13 @@ void Image::ChangeContrast (double factor)
     
     // get final mean luminance
     float averageLuminance = total / num_pixels;
+    Pixel luminancePixel = Pixel(averageLuminance, averageLuminance, averageLuminance, 1);
     
-    
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            GetPixel(i, j) = PixelLerp(luminancePixel, GetPixel(i, j), factor);
+        }
+    }
 }
 
 
