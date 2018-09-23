@@ -109,7 +109,7 @@ public:
      * Changes the saturation of an image by interpolating between the
      * image and a gray level version of the image.  Interpolation
      * decreases saturation, extrapolation increases it, negative factors
-     * presrve luminance but invert the hue of the input image.
+     * preserve luminance but invert the hue of the input image.
      **/
     void ChangeSaturation (double factor);
     

@@ -127,19 +127,21 @@ void Image::Brighten (double factor)
 }
 
 
-void Image::ChangeContrast (double factor)
-{
+void Image::ChangeContrast (double factor) {
     // calculate mean luminance
     float total = 0;
-    
-    for(int i = 0; i < num_pixels; i++) {
-        total += 0.3 * data.pixels[i].r + 0.59 * data.pixels[i].g + 0.11 * data.pixels[i].b;
+
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            total += GetPixel(i, j).Luminance();
+        }
     }
     
-    // get final mean luminance
+    // get final mean luminance and store it as a pixel
     float averageLuminance = total / num_pixels;
     Pixel luminancePixel = Pixel(averageLuminance, averageLuminance, averageLuminance, 1);
     
+    // change each pixel
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
             GetPixel(i, j) = PixelLerp(luminancePixel, GetPixel(i, j), factor);
@@ -148,8 +150,7 @@ void Image::ChangeContrast (double factor)
 }
 
 
-void Image::ChangeSaturation(double factor)
-{
+void Image::ChangeSaturation(double factor) {
     /* WORK HERE */
 }
 
