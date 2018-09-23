@@ -151,7 +151,15 @@ void Image::ChangeContrast (double factor) {
 
 
 void Image::ChangeSaturation(double factor) {
-    /* WORK HERE */
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            // calculate the luminance for the current pixel
+            float luminance = GetPixel(i, j).Luminance();
+            Pixel luminancePixel = Pixel(luminance, luminance, luminance, 1);
+            
+            GetPixel(i, j) = PixelLerp(luminancePixel, GetPixel(i, j), factor);
+        }
+    }
 }
 
 
