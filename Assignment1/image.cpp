@@ -200,9 +200,22 @@ void Image::ExtractChannel(int channel) {
 }
 
 
-void Image::Quantize (int nbits)
-{
-    /* WORK HERE */
+void Image::Quantize (int nbits) {
+    int totalPossibleColors = pow(nbits, 2);
+    
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            //GetPixel(i, j).r += 0.5;
+            //GetPixel(i, j).g += 0.5;
+            //GetPixel(i, j).b += 0.5;
+            
+            //GetPixel(i, j).r = trunc(GetPixel(i, j).r + 0.5);
+            //GetPixel(i, j).g = trunc(GetPixel(i, j).g + 0.5);
+            //GetPixel(i, j).b = trunc(GetPixel(i, j).b + 0.5);
+            
+            GetPixel(i, j) = PixelQuant(GetPixel(i, j), nbits);
+        }
+    }
 }
 
 void Image::RandomDither (int nbits)
