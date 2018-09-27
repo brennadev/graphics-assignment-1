@@ -205,9 +205,28 @@ void Image::Quantize (int nbits) {
     }
 }
 
-void Image::RandomDither (int nbits)
-{
-    /* WORK HERE */
+void Image::RandomDither (int nbits) {
+    srand(time(NULL));
+    
+    // the area that the random value can fall into
+    float areaWidth = 1.0 / nbits;
+    
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            int areaNumberRed = (int)(GetPixel(i, j).r / 255 / areaWidth);
+            int areaNumberGreen = (int)(GetPixel(i, j).g / 255 / areaWidth);
+            int areaNumberBlue = (int)(GetPixel(i, j).b / 255 / areaWidth);
+            
+            // start with a random value that falls in the color range
+            float randomRed = rand() % 255;
+            
+            // then convert it to a range of 0 to the first threshold
+            randomRed /= 255.0 / nbits;
+            // move up to the area that we should be in
+            randomRed += areaNumberRed * areaWidth;
+        }
+    }
+    
 }
 
 
@@ -220,9 +239,8 @@ static int Bayer4[4][4] =
 };
 
 
-void Image::OrderedDither(int nbits)
-{
-    /* WORK HERE */
+void Image::OrderedDither(int nbits) {
+    
 }
 
 /* Error-diffusion parameters */
@@ -232,9 +250,22 @@ BETA  = 3.0 / 16.0,
 GAMMA = 5.0 / 16.0,
 DELTA = 1.0 / 16.0;
 
-void Image::FloydSteinbergDither(int nbits)
-{
-    /* WORK HERE */
+void Image::FloydSteinbergDither(int nbits){
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            // must save original pixel since the error is determined from that
+            Pixel originalPixel = Pixel(GetPixel(i, j));
+            
+            // quantize first
+            GetPixel(i, j) = PixelQuant(GetPixel(i, j), nbits);
+            
+            // spread the error
+            GetPixel(i + 1, j) = GetPixel(i + 1, j) + originalPixel * ALPHA;
+            GetPixel(i - 1, j - 1) = GetPixel(i - 1, j - 1) + originalPixel * BETA;
+            GetPixel(i, j - 1) = GetPixel(i, j - 1) + originalPixel * GAMMA;
+            GetPixel(i + 1, j + 1) = GetPixel(i + 1, j + 1) + originalPixel * DELTA;
+        }
+    }
 }
 
 
@@ -322,8 +353,16 @@ Image* Image::Scale(double sx, double sy) {
 }
 
 Image* Image::Rotate(double angle) {
-    /* WORK HERE */
-    return NULL;
+    // we want to make sure we don't modify the original image
+    Image *rotatedImage = new Image(*this);
+    
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            //rotatedImage->GetPixel(i, j) = Sample(<#double u#>, <#double v#>)
+        }
+    }
+    
+    return rotatedImage;
 }
 
 void Image::Fun()
