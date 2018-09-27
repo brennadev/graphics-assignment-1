@@ -240,19 +240,34 @@ void Image::FloydSteinbergDither(int nbits)
     /* WORK HERE */
 }
 
+
 void Image::Blur(int n) {
+    // Values that get passed to the Gaussian function later on
     float valuesToPass[n];
+    // The current location from 0 to add points at in valuesToPass
     float currentPoint;
+    // Values inside valuesToPass that haven't been filled yet
+    int valuesToFill;
     
+    // must treat odd and even n differently
     if (n % 2 == 0) {
         currentPoint = 0.5;
         valuesToPass[n / 2 - 1] = -0.5;
         valuesToPass[n / 2] = 0.5;
+        valuesToFill = n - 2;
     } else {
         currentPoint = 0;
         valuesToPass[n / 2] = 0;
+        valuesToFill = n - 1;
+    }
+    
+    for (int i = 0; i < valuesToFill / 2; i++) {
+        
+        // move to the next location
+        currentPoint++;
     }
 }
+
 
 // TODO: test this once blur is implemented; I'm not sure if the interpolation amount will work
 void Image::Sharpen(int n) {
@@ -272,6 +287,7 @@ void Image::EdgeDetect()
     /* WORK HERE */
 }
 
+// TODO: test this function; it should be complete, but Sample isn't implemented yet, so I can't test it
 Image* Image::Scale(double sx, double sy) {
     
     // we want to make sure we don't modify the original image
@@ -308,6 +324,16 @@ void Image::SetSamplingMethod(int method)
 
 
 Pixel Image::Sample (double u, double v){
-    /* WORK HERE */
+    switch (sampling_method) {
+        case IMAGE_SAMPLING_POINT:
+            
+            break;
+            
+        case IMAGE_SAMPLING_BILINEAR:
+            break;
+            
+        case IMAGE_SAMPLING_GAUSSIAN:
+            break;
+    }
     return Pixel();
 }
