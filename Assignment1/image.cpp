@@ -251,17 +251,14 @@ void Image::Blur(int n) {
     // must treat odd and even n differently
     if (n % 2 == 0) {
         currentPoint = 0.5;
-        //valuesToPass[n / 2 - 1] = -0.5;
-        //valuesToPass[n / 2] = 0.5;
-        //valuesToFill = n - 2;
-        
-        
+
+        // Each point is going out from the center with a difference of 1, starting with 0.5 and -0.5. For example, if n == 6, then valuesToPass will be [-2.5, -1.5, -0.5, 0.5, 1.5, 2.5] after the loop finishes.
         for (int i = 0; i < (n - 2) / 2; i++) {
-            valuesToPass[n / 2 - 1 + i] = currentPoint;
-            valuesToPass[n / 2 - i] = -1 * currentPoint;
+            valuesToPass[n / 2 - 1 + i] = currentPoint;     // to right of center
+            valuesToPass[n / 2 - i] = -1 * currentPoint;    // to left of center
         }
     } else {
-        //currentPoint = 0;
+        // set the center point to 0
         valuesToPass[n / 2] = 0;
         currentPoint = 1;
         
