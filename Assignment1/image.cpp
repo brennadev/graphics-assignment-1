@@ -240,7 +240,7 @@ void Image::FloydSteinbergDither(int nbits)
 
 void Image::Blur(int n) {
     // Values that get passed to the Gaussian function later on
-    float valuesToPass[n];
+    float valuesToPassToGaussian[n];
     // The current location from 0 to add points at in valuesToPass
     float currentPoint;
     
@@ -251,22 +251,28 @@ void Image::Blur(int n) {
 
         // Each point is going out from the center with a difference of 1, starting with 0.5 and -0.5. For example, if n == 6, then valuesToPass will be [-2.5, -1.5, -0.5, 0.5, 1.5, 2.5] after the loop finishes.
         for (int i = 0; i < (n - 2) / 2; i++) {
-            valuesToPass[n / 2 - 1 + i] = currentPoint;     // to right of center
-            valuesToPass[n / 2 - i] = -1 * currentPoint;    // to left of center
+            valuesToPassToGaussian[n / 2 - 1 + i] = currentPoint;     // to right of center
+            valuesToPassToGaussian[n / 2 - i] = -1 * currentPoint;    // to left of center
         }
     } else {
         // set the center point to 0
-        valuesToPass[n / 2] = 0;
+        valuesToPassToGaussian[n / 2] = 0;
         currentPoint = 1;
         
         // Each point is going out from the center with a difference of 1. The center point is at 0, so this means the next points are at -1 and 1. For example, if n == 7, then valuesToPass will be [-3, -2, -1, 0, 1, 2, 3] after the loop finishes.
         for (int i = 1; i <= (n - 1) / 2; i++) {
-            valuesToPass[n / 2 + i] = currentPoint;         // to right of center
-            valuesToPass[n / 2 - i] = -1 * currentPoint;    // to left of center
+            valuesToPassToGaussian[n / 2 + i] = currentPoint;         // to right of center
+            valuesToPassToGaussian[n / 2 - i] = -1 * currentPoint;    // to left of center
         }
     }
     
-
+    // the 1D array that's filled after performing the Gaussian function on all positions
+    float valuesAfterGaussian1D[n];
+    
+    // multiply each of these positions by the Gaussian function - always using a standard deviation of 1
+    for (int i = 0; i < n; i++) {
+        valuesAfterGaussian1D[i] = (1 / sqrt(2 * M_PI)) * pow(M_E, -1 * pow(valuesToPassToGaussian[i], 2) / 2);
+    }
     
     // Note to self: M_E for e in gaussian function
 }
