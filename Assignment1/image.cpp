@@ -273,8 +273,18 @@ void Image::Blur(int n) {
     for (int i = 0; i < n; i++) {
         valuesAfterGaussian1D[i] = (1 / sqrt(2 * M_PI)) * pow(M_E, -1 * pow(valuesToPassToGaussian[i], 2) / 2);
     }
+
+    // then we need to multiply these together to get the Gaussian filter that we'll work with
+    // The Gaussian filter (populated after loop below)
+    float gaussianFilter[n][n];
     
-    // Note to self: M_E for e in gaussian function
+    // the actual vector multiplication
+    // TODO: is there something provided that can handle this?
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            
+        }
+    }
 }
 
 
