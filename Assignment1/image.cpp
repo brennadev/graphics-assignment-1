@@ -321,8 +321,7 @@ Image* Image::Scale(double sx, double sy) {
     return scaledImage;
 }
 
-Image* Image::Rotate(double angle)
-{
+Image* Image::Rotate(double angle) {
     /* WORK HERE */
     return NULL;
 }
@@ -341,7 +340,7 @@ void Image::SetSamplingMethod(int method)
     sampling_method = method;
 }
 
-
+// TODO: finish this
 Pixel Image::Sample (double u, double v){
     switch (sampling_method) {
         case IMAGE_SAMPLING_POINT:
