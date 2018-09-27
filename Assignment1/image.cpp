@@ -12,8 +12,6 @@
 #include <string.h>
 #include <float.h>
 #include <iostream>
-//#include <cstdlib>
-//#include <ctime>
 using namespace std;
 
 /**
@@ -39,7 +37,6 @@ Image::Image (int width_, int height_){
             data.raw[b++] = 0;
         }
     }
-    
     assert(data.raw != NULL);
 }
 
@@ -69,7 +66,6 @@ Image::Image (char* fname){
     
     num_pixels = width * height;
     sampling_method = IMAGE_SAMPLING_POINT;
-    
 }
 
 Image::~Image (){
@@ -98,6 +94,7 @@ void Image::Write(char* fname){
 }
 
 void Image::AddNoise (double factor) {
+    // seed random number generator
     srand(time(NULL));
     
     // don't want to add any noise if the factor is 0
@@ -249,23 +246,40 @@ void Image::Blur(int n) {
     // Values inside valuesToPass that haven't been filled yet
     int valuesToFill;
     
+    
+    
     // must treat odd and even n differently
     if (n % 2 == 0) {
         currentPoint = 0.5;
-        valuesToPass[n / 2 - 1] = -0.5;
-        valuesToPass[n / 2] = 0.5;
-        valuesToFill = n - 2;
+        //valuesToPass[n / 2 - 1] = -0.5;
+        //valuesToPass[n / 2] = 0.5;
+        //valuesToFill = n - 2;
+        
+        
+        for (int i = 0; i < (n - 2) / 2; i++) {
+            valuesToPass[n / 2 - 1 + i] = currentPoint;
+            valuesToPass[n / 2 - i] = -1 * currentPoint;
+        }
     } else {
-        currentPoint = 0;
+        //currentPoint = 0;
         valuesToPass[n / 2] = 0;
-        valuesToFill = n - 1;
+        currentPoint = 1;
+        
+        for (int i = 1; i <= (n - 1) / 2; i++) {
+            valuesToPass[n / 2 + i] = currentPoint;
+            valuesToPass[n / 2 - i] = -1 * currentPoint;
+        }
+        //valuesToFill = n - 1;
     }
     
-    for (int i = 0; i < valuesToFill / 2; i++) {
+    /*for (int i = 0; i < valuesToFill / 2; i++) {
         
         // move to the next location
         currentPoint++;
-    }
+    }*/
+    
+    
+    // M_E for e in gaussian function
 }
 
 
