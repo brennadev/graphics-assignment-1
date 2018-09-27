@@ -243,9 +243,6 @@ void Image::Blur(int n) {
     float valuesToPass[n];
     // The current location from 0 to add points at in valuesToPass
     float currentPoint;
-    // Values inside valuesToPass that haven't been filled yet
-    int valuesToFill;
-    
     
     
     // must treat odd and even n differently
@@ -262,21 +259,16 @@ void Image::Blur(int n) {
         valuesToPass[n / 2] = 0;
         currentPoint = 1;
         
+        // Each point is going out from the center with a difference of 1. The center point is at 0, so this means the next points are at -1 and 1. For example, if n == 7, then valuesToPass will be [-3, -2, -1, 0, 1, 2, 3] after the loop finishes.
         for (int i = 1; i <= (n - 1) / 2; i++) {
-            valuesToPass[n / 2 + i] = currentPoint;
-            valuesToPass[n / 2 - i] = -1 * currentPoint;
+            valuesToPass[n / 2 + i] = currentPoint;         // to right of center
+            valuesToPass[n / 2 - i] = -1 * currentPoint;    // to left of center
         }
-        //valuesToFill = n - 1;
     }
     
-    /*for (int i = 0; i < valuesToFill / 2; i++) {
-        
-        // move to the next location
-        currentPoint++;
-    }*/
+
     
-    
-    // M_E for e in gaussian function
+    // Note to self: M_E for e in gaussian function
 }
 
 

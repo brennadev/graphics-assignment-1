@@ -76,8 +76,8 @@
 		65FD05662153CD14002E708C /* Assignment1 */ = {
 			isa = PBXGroup;
 			children = (
-				65FD056E2153CD25002E708C /* image.cpp */,
 				65FD05702153CD5B002E708C /* image.h */,
+				65FD056E2153CD25002E708C /* image.cpp */,
 				65FD05742153CD93002E708C /* main.cpp */,
 				65FD05732153CD93002E708C /* pixel.h */,
 				65FD05722153CD93002E708C /* pixel.cpp */,
