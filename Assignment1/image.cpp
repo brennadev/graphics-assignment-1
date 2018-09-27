@@ -240,14 +240,31 @@ void Image::FloydSteinbergDither(int nbits)
     /* WORK HERE */
 }
 
-void Image::Blur(int n)
-{
-    /* WORK HERE */
+void Image::Blur(int n) {
+    float valuesToPass[n];
+    float currentPoint;
+    
+    if (n % 2 == 0) {
+        currentPoint = 0.5;
+        valuesToPass[n / 2 - 1] = -0.5;
+        valuesToPass[n / 2] = 0.5;
+    } else {
+        currentPoint = 0;
+        valuesToPass[n / 2] = 0;
+    }
 }
 
-void Image::Sharpen(int n)
-{
-    /* WORK HERE */
+// TODO: test this once blur is implemented; I'm not sure if the interpolation amount will work
+void Image::Sharpen(int n) {
+    // we need to have a blurred copy of the image to work with
+    Image blurredImage = Image(*this);
+    blurredImage.Blur(n);
+    
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            GetPixel(i, j) = PixelLerp(GetPixel(i, j), blurredImage.GetPixel(i, j), 2);
+        }
+    }
 }
 
 void Image::EdgeDetect()
@@ -255,10 +272,18 @@ void Image::EdgeDetect()
     /* WORK HERE */
 }
 
-Image* Image::Scale(double sx, double sy)
-{
-    /* WORK HERE */
-    return NULL;
+Image* Image::Scale(double sx, double sy) {
+    
+    // we want to make sure we don't modify the original image
+    Image *scaledImage = new Image(*this);
+    
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            scaledImage->GetPixel(i, j) = Sample(i / sx, j / sy);
+        }
+    }
+    
+    return scaledImage;
 }
 
 Image* Image::Rotate(double angle)
