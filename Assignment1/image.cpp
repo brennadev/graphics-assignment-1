@@ -256,6 +256,27 @@ void Image::FloydSteinbergDither(int nbits){
             // must save original pixel since the error is determined from that
             Pixel originalPixel = Pixel(GetPixel(i, j));
             
+            // these values may need to be modified if there is less area to spread the error over as the total error still needs to be equal to 1.
+            double alphaNew = ALPHA;
+            double betaNew = BETA;
+            double gammaNew = GAMMA;
+            double deltaNew = DELTA;
+            
+            // modify if at certain edges
+            // bottom right
+            if (i == width - 1 && j == height - 1) {
+               
+            // right edge
+            } else if (i == width - 1) {
+            
+            // bottom edge
+            } else if (j == height - 1) {
+                
+            // left edge
+            } else if (i == 0) {
+                
+            }
+            
             // quantize first
             GetPixel(i, j) = PixelQuant(GetPixel(i, j), nbits);
             
@@ -270,8 +291,35 @@ void Image::FloydSteinbergDither(int nbits){
 
 
 void Image::Blur(int n) {
+    
+    float filter[3][3];
+    
+    // actual convolution
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            
+            
+            
+            
+            GetPixel(i + n / 2, j + n / 2) = GetPixel(i + n / 2, j + n / 2) * filter[i][j];
+            
+            // for values that are near the edge, make sure that that gets handled properly by extending the edge
+            // when x is close to the edge
+            if (i - n / 2 < 0) {
+                <#statements#>
+            }
+            
+            
+        }
+    }
+    
+    
+    
+    
+    // TODO: a bunch of old code - not sure what of this I'll need to keep
+    
     // Values that get passed to the Gaussian function later on
-    float valuesToPassToGaussian[n];
+    /*float valuesToPassToGaussian[n];
     // The current location from 0 to add points at in valuesToPass
     float currentPoint;
     
@@ -315,7 +363,7 @@ void Image::Blur(int n) {
         for (int j = 0; j < n; j++) {
             
         }
-    }
+    }*/
 }
 
 
