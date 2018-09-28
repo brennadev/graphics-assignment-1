@@ -259,40 +259,27 @@ void Image::FloydSteinbergDither(int nbits){
             // quantize first
             GetPixel(i, j) = PixelQuant(GetPixel(i, j), nbits);
             
-            
-            // these values may need to be modified if there is less area to spread the error over as the total error still needs to be equal to 1.
-            double alphaNew = ALPHA;
-            double betaNew = BETA;
-            double gammaNew = GAMMA;
-            double deltaNew = DELTA;
-            
-            // modify if at certain edges
-            
+
             // spread the error depending on the location of the pixel (in case it's at the edges)
             // bottom right
             if (i == width - 1 && j == height - 1) {
-               
+                // TODO: fill this in
             // right edge
             } else if (i == width - 1) {
-                betaNew += 4/16.0;
-                gammaNew += 4/16.0;
-                
                 GetPixel(i - 1, j - 1) = GetPixel(i - 1, j - 1) + originalPixel * (BETA + 4/16.0);
                 GetPixel(i, j - 1) = GetPixel(i, j - 1) + originalPixel * (GAMMA + 4/16.0);
+                
             // bottom edge
             } else if (j == height - 1) {
-                alphaNew += 9/16.0;
-                
                 GetPixel(i + 1, j) = GetPixel(i + 1, j) + originalPixel * (ALPHA + 9/16.0);
+                
             // left edge
             } else if (i == 0) {
-                alphaNew += 1/16.0;
-                gammaNew += 1/16.0;
-                deltaNew += 1/16.0;
-                
                 GetPixel(i + 1, j) = GetPixel(i + 1, j) + originalPixel * (ALPHA + 1/16.0);
                 GetPixel(i, j - 1) = GetPixel(i, j - 1) + originalPixel * (GAMMA + 1/16.0);
                 GetPixel(i + 1, j + 1) = GetPixel(i + 1, j + 1) + originalPixel * (DELTA + 1/16.0);
+                
+            // anywhere else in image
             } else {
                 GetPixel(i + 1, j) = GetPixel(i + 1, j) + originalPixel * ALPHA;
                 GetPixel(i - 1, j - 1) = GetPixel(i - 1, j - 1) + originalPixel * BETA;
