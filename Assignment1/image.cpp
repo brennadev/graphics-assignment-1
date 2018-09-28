@@ -226,6 +226,11 @@ void Image::RandomDither (int nbits) {
             GetPixel(i, j).g = trunc(GetPixel(i, j).g + randomGreen + 0.5);
             GetPixel(i, j).b = trunc(GetPixel(i, j).b + randomBlue + 0.5);
             
+            
+            //cout << "r: " << (int)GetPixel(i, j).r << endl;
+            //cout << "g: " << (int)GetPixel(i, j).g << endl;
+            //cout << "b: " << (int)GetPixel(i, j).b << endl;
+            
             // move up to the area that we should be in
             //randomRed += areaNumberRed * areaWidth;
         }
@@ -385,8 +390,7 @@ void Image::Sharpen(int n) {
     }
 }
 
-void Image::EdgeDetect()
-{
+void Image::EdgeDetect() {
     /* WORK HERE */
 }
 
@@ -405,13 +409,15 @@ Image* Image::Scale(double sx, double sy) {
     return scaledImage;
 }
 
+// TODO: test this function; it should be complete, but Sample isn't implemented yet, so I can't test it
 Image* Image::Rotate(double angle) {
     // we want to make sure we don't modify the original image
     Image *rotatedImage = new Image(*this);
     
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
-            //rotatedImage->GetPixel(i, j) = Sample(<#double u#>, <#double v#>)
+            rotatedImage->GetPixel(i, j) = Sample(i * cos(-1 * angle) - j * sin(-1 * angle),
+                                                  i * sin(-1 * angle) + j * cos(-1 * angle));
         }
     }
     
