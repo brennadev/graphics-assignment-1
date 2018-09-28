@@ -209,21 +209,25 @@ void Image::RandomDither (int nbits) {
     srand(time(NULL));
     
     // the area that the random value can fall into
-    float areaWidth = 1.0 / nbits;
+    int areaWidth = 255.0 / nbits;
     
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
-            int areaNumberRed = (int)(GetPixel(i, j).r / 255 / areaWidth);
-            int areaNumberGreen = (int)(GetPixel(i, j).g / 255 / areaWidth);
-            int areaNumberBlue = (int)(GetPixel(i, j).b / 255 / areaWidth);
+            int areaNumberRed = (int)(GetPixel(i, j).r / areaWidth);
+            int areaNumberGreen = (int)(GetPixel(i, j).g / areaWidth);
+            int areaNumberBlue = (int)(GetPixel(i, j).b / areaWidth);
             
-            // start with a random value that falls in the color range
-            float randomRed = rand() % 255;
+            // start with a random value that falls in the color range and then convert it to a range of 0 to the first threshold
+            float randomRed = (rand() % 255) % areaWidth;
+            float randomGreen = (rand() % 255) % areaWidth;
+            float randomBlue = (rand() % 255) % areaWidth;
             
-            // then convert it to a range of 0 to the first threshold
-            randomRed /= 255.0 / nbits;
+            GetPixel(i, j).r = trunc(GetPixel(i, j).r + randomRed + 0.5);
+            GetPixel(i, j).g = trunc(GetPixel(i, j).g + randomGreen + 0.5);
+            GetPixel(i, j).b = trunc(GetPixel(i, j).b + randomBlue + 0.5);
+            
             // move up to the area that we should be in
-            randomRed += areaNumberRed * areaWidth;
+            //randomRed += areaNumberRed * areaWidth;
         }
     }
     
@@ -266,8 +270,8 @@ void Image::FloydSteinbergDither(int nbits){
                 // TODO: fill this in
             // right edge
             } else if (i == width - 1) {
-                GetPixel(i - 1, j - 1) = GetPixel(i - 1, j - 1) + originalPixel * (BETA + 4/16.0);
-                GetPixel(i, j - 1) = GetPixel(i, j - 1) + originalPixel * (GAMMA + 4/16.0);
+                GetPixel(i - 1, j + 1) = GetPixel(i - 1, j + 1) + originalPixel * (BETA + 4/16.0);
+                GetPixel(i, j + 1) = GetPixel(i, j + 1) + originalPixel * (GAMMA + 4/16.0);
                 
             // bottom edge
             } else if (j == height - 1) {
@@ -276,14 +280,14 @@ void Image::FloydSteinbergDither(int nbits){
             // left edge
             } else if (i == 0) {
                 GetPixel(i + 1, j) = GetPixel(i + 1, j) + originalPixel * (ALPHA + 1/16.0);
-                GetPixel(i, j - 1) = GetPixel(i, j - 1) + originalPixel * (GAMMA + 1/16.0);
+                GetPixel(i, j + 1) = GetPixel(i, j + 1) + originalPixel * (GAMMA + 1/16.0);
                 GetPixel(i + 1, j + 1) = GetPixel(i + 1, j + 1) + originalPixel * (DELTA + 1/16.0);
                 
             // anywhere else in image
             } else {
                 GetPixel(i + 1, j) = GetPixel(i + 1, j) + originalPixel * ALPHA;
-                GetPixel(i - 1, j - 1) = GetPixel(i - 1, j - 1) + originalPixel * BETA;
-                GetPixel(i, j - 1) = GetPixel(i, j - 1) + originalPixel * GAMMA;
+                GetPixel(i - 1, j + 1) = GetPixel(i - 1, j + 1) + originalPixel * BETA;
+                GetPixel(i, j + 1) = GetPixel(i, j + 1) + originalPixel * GAMMA;
                 GetPixel(i + 1, j + 1) = GetPixel(i + 1, j + 1) + originalPixel * DELTA;
             }
         }
@@ -306,9 +310,9 @@ void Image::Blur(int n) {
             
             // for values that are near the edge, make sure that that gets handled properly by extending the edge
             // when x is close to the edge
-            if (i - n / 2 < 0) {
+            /*if (i - n / 2 < 0) {
                 <#statements#>
-            }
+            }*/
             
             
         }
