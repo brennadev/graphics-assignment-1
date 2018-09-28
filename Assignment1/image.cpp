@@ -109,15 +109,17 @@ void Image::AddNoise (double factor) {
     }
 }
 
-void Image::Brighten (double factor)
-{
+void Image::Brighten (double factor) {
     int x,y;
     for (x = 0 ; x < Width() ; x++)
     {
         for (y = 0 ; y < Height() ; y++)
         {
             Pixel p = GetPixel(x, y);
-            Pixel scaled_p = p*factor;
+            Pixel scaled_p;
+            scaled_p.r = factor*p.r;
+            scaled_p.g = factor*p.g;
+            scaled_p.b = factor*p.b;
             GetPixel(x,y) = scaled_p;
         }
     }
@@ -290,7 +292,7 @@ void Image::FloydSteinbergDither(int nbits){
             ComponentClamp(GetPixel(i, j).r);
             ComponentClamp(GetPixel(i, j).g);
             ComponentClamp(GetPixel(i, j).b);
-        }  
+        }
     }
 }
 
