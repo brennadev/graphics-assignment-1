@@ -222,12 +222,30 @@ void Image::RandomDither (int nbits) {
             float randomGreen = (rand() % 255) % areaWidth;
             float randomBlue = (rand() % 255) % areaWidth;
             
-            GetPixel(i, j).r = trunc(GetPixel(i, j).r + randomRed + 0.5);
-            GetPixel(i, j).g = trunc(GetPixel(i, j).g + randomGreen + 0.5);
-            GetPixel(i, j).b = trunc(GetPixel(i, j).b + randomBlue + 0.5);
+            //if (randomRed > 36 || randomGreen > 36 || randomBlue > 36) {
+                //cout << "random value greater than 36" << endl;
+            //}
+            //cout << "randomRed: " << randomRed << endl;
             
             
-            //cout << "r: " << (int)GetPixel(i, j).r << endl;
+            
+            Pixel quantized = PixelQuant(GetPixel(i, j), nbits);
+            
+            //cout << "g: " << (int)GetPixel(i, j).g << endl;
+            
+            
+            //cout << "quantized red: " << (int)quantized.g << endl << endl;
+            //GetPixel(i, j).r = ComponentClamp(trunc(quantized.r + randomRed + 0.5));
+            //GetPixel(i, j).g = ComponentClamp(trunc(quantized.g + randomGreen + 0.5));
+            //GetPixel(i, j).b = ComponentClamp(trunc(quantized.b + randomBlue + 0.5));
+            
+            
+            GetPixel(i, j).r = ComponentClamp(trunc(GetPixel(i, j).r + randomRed + 0.5));
+            GetPixel(i, j).g = ComponentClamp(trunc(GetPixel(i, j).g + randomGreen + 0.5));
+            GetPixel(i, j).b = ComponentClamp(trunc(GetPixel(i, j).b + randomBlue + 0.5));
+            
+            
+            
             //cout << "g: " << (int)GetPixel(i, j).g << endl;
             //cout << "b: " << (int)GetPixel(i, j).b << endl;
             
@@ -391,7 +409,7 @@ void Image::Sharpen(int n) {
 }
 
 void Image::EdgeDetect() {
-    /* WORK HERE */
+    
 }
 
 // TODO: test this function; it should be complete, but Sample isn't implemented yet, so I can't test it
@@ -424,8 +442,7 @@ Image* Image::Rotate(double angle) {
     return rotatedImage;
 }
 
-void Image::Fun()
-{
+void Image::Fun() {
     /* WORK HERE */
 }
 
