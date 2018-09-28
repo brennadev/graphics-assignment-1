@@ -213,44 +213,15 @@ void Image::RandomDither (int nbits) {
     
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
-            int areaNumberRed = (int)(GetPixel(i, j).r / areaWidth);
-            int areaNumberGreen = (int)(GetPixel(i, j).g / areaWidth);
-            int areaNumberBlue = (int)(GetPixel(i, j).b / areaWidth);
-            
             // start with a random value that falls in the color range and then convert it to a range of 0 to the first threshold
             float randomRed = (rand() % 255) % areaWidth;
             float randomGreen = (rand() % 255) % areaWidth;
             float randomBlue = (rand() % 255) % areaWidth;
-            
-            //if (randomRed > 36 || randomGreen > 36 || randomBlue > 36) {
-                //cout << "random value greater than 36" << endl;
-            //}
-            //cout << "randomRed: " << randomRed << endl;
-            
-            
-            
-            Pixel quantized = PixelQuant(GetPixel(i, j), nbits);
-            
-            //cout << "g: " << (int)GetPixel(i, j).g << endl;
-            
-            
-            //cout << "quantized red: " << (int)quantized.g << endl << endl;
-            //GetPixel(i, j).r = ComponentClamp(trunc(quantized.r + randomRed + 0.5));
-            //GetPixel(i, j).g = ComponentClamp(trunc(quantized.g + randomGreen + 0.5));
-            //GetPixel(i, j).b = ComponentClamp(trunc(quantized.b + randomBlue + 0.5));
-            
-            
+
+            // now can do the actual calculation
             GetPixel(i, j).r = ComponentClamp(trunc(GetPixel(i, j).r + randomRed + 0.5));
             GetPixel(i, j).g = ComponentClamp(trunc(GetPixel(i, j).g + randomGreen + 0.5));
             GetPixel(i, j).b = ComponentClamp(trunc(GetPixel(i, j).b + randomBlue + 0.5));
-            
-            
-            
-            //cout << "g: " << (int)GetPixel(i, j).g << endl;
-            //cout << "b: " << (int)GetPixel(i, j).b << endl;
-            
-            // move up to the area that we should be in
-            //randomRed += areaNumberRed * areaWidth;
         }
     }
     
