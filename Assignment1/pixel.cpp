@@ -112,3 +112,5 @@ Pixel PixelQuant( const Pixel &p, int nbits)
 	ret.SetClamp(new_r*mult , new_g*mult , new_b*mult );
 	return ret;
 }
+
+
