@@ -267,6 +267,8 @@ void Image::FloydSteinbergDither(int nbits){
             double deltaNew = DELTA;
             
             // modify if at certain edges
+            
+            // spread the error depending on the location of the pixel (in case it's at the edges)
             // bottom right
             if (i == width - 1 && j == height - 1) {
                
@@ -280,20 +282,23 @@ void Image::FloydSteinbergDither(int nbits){
             // bottom edge
             } else if (j == height - 1) {
                 alphaNew += 9/16.0;
+                
+                GetPixel(i + 1, j) = GetPixel(i + 1, j) + originalPixel * (ALPHA + 9/16.0);
             // left edge
             } else if (i == 0) {
                 alphaNew += 1/16.0;
                 gammaNew += 1/16.0;
                 deltaNew += 1/16.0;
+                
+                GetPixel(i + 1, j) = GetPixel(i + 1, j) + originalPixel * (ALPHA + 1/16.0);
+                GetPixel(i, j - 1) = GetPixel(i, j - 1) + originalPixel * (GAMMA + 1/16.0);
+                GetPixel(i + 1, j + 1) = GetPixel(i + 1, j + 1) + originalPixel * (DELTA + 1/16.0);
+            } else {
+                GetPixel(i + 1, j) = GetPixel(i + 1, j) + originalPixel * ALPHA;
+                GetPixel(i - 1, j - 1) = GetPixel(i - 1, j - 1) + originalPixel * BETA;
+                GetPixel(i, j - 1) = GetPixel(i, j - 1) + originalPixel * GAMMA;
+                GetPixel(i + 1, j + 1) = GetPixel(i + 1, j + 1) + originalPixel * DELTA;
             }
-            
-            
-            
-            // spread the error
-            GetPixel(i + 1, j) = GetPixel(i + 1, j) + originalPixel * alphaNew;
-            GetPixel(i - 1, j - 1) = GetPixel(i - 1, j - 1) + originalPixel * betaNew;
-            GetPixel(i, j - 1) = GetPixel(i, j - 1) + originalPixel * gammaNew;
-            GetPixel(i + 1, j + 1) = GetPixel(i + 1, j + 1) + originalPixel * deltaNew;
         }
     }
 }
