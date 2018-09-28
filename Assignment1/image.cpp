@@ -205,6 +205,7 @@ void Image::Quantize (int nbits) {
     }
 }
 
+// TODO: put image results on website
 void Image::RandomDither (int nbits) {
     srand(time(NULL));
     
@@ -284,7 +285,12 @@ void Image::FloydSteinbergDither(int nbits){
                 GetPixel(i, j + 1) = GetPixel(i, j + 1) + originalPixel * GAMMA;
                 GetPixel(i + 1, j + 1) = GetPixel(i + 1, j + 1) + originalPixel * DELTA;
             }
-        }
+            
+            // TODO: not sure if the clamping code is needed - just figured I'd try it just in case
+            ComponentClamp(GetPixel(i, j).r);
+            ComponentClamp(GetPixel(i, j).g);
+            ComponentClamp(GetPixel(i, j).b);
+        }  
     }
 }
 
@@ -356,13 +362,7 @@ void Image::Blur(int n) {
     // The Gaussian filter (populated after loop below)
     float gaussianFilter[n][n];
     
-    // the actual vector multiplication
-    // TODO: is there something provided that can handle this?
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            
-        }
-    }*/
+*/
 }
 
 
@@ -380,7 +380,11 @@ void Image::Sharpen(int n) {
 }
 
 void Image::EdgeDetect() {
-    
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            
+        }
+    }
 }
 
 // TODO: test this function; it should be complete, but Sample isn't implemented yet, so I can't test it
