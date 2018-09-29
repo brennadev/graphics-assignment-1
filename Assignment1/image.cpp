@@ -109,6 +109,7 @@ void Image::AddNoise (double factor) {
     }
 }
 
+// TODO: update website with image using new brightness implementation
 void Image::Brighten (double factor) {
     int x,y;
     for (x = 0 ; x < Width() ; x++)
@@ -260,6 +261,8 @@ void Image::FloydSteinbergDither(int nbits){
             // quantize first
             GetPixel(i, j) = PixelQuant(GetPixel(i, j), nbits);
             
+            Pixel quantizationError = originalPixel - GetPixel(i, j);
+            
 
             // spread the error depending on the location of the pixel (in case it's at the edges)
             // bottom right
@@ -267,31 +270,31 @@ void Image::FloydSteinbergDither(int nbits){
                 // TODO: fill this in
             // right edge
             } else if (i == width - 1) {
-                GetPixel(i - 1, j + 1) = GetPixel(i - 1, j + 1) + originalPixel * (BETA + 4/16.0);
-                GetPixel(i, j + 1) = GetPixel(i, j + 1) + originalPixel * (GAMMA + 4/16.0);
+                GetPixel(i - 1, j + 1) = GetPixel(i - 1, j + 1) + quantizationError * (BETA + 4/16.0);
+                GetPixel(i, j + 1) = GetPixel(i, j + 1) + quantizationError * (GAMMA + 4/16.0);
                 
             // bottom edge
             } else if (j == height - 1) {
-                GetPixel(i + 1, j) = GetPixel(i + 1, j) + originalPixel * (ALPHA + 9/16.0);
+                GetPixel(i + 1, j) = GetPixel(i + 1, j) + quantizationError * (ALPHA + 9/16.0);
                 
             // left edge
             } else if (i == 0) {
-                GetPixel(i + 1, j) = GetPixel(i + 1, j) + originalPixel * (ALPHA + 1/16.0);
-                GetPixel(i, j + 1) = GetPixel(i, j + 1) + originalPixel * (GAMMA + 1/16.0);
-                GetPixel(i + 1, j + 1) = GetPixel(i + 1, j + 1) + originalPixel * (DELTA + 1/16.0);
+                GetPixel(i + 1, j) = GetPixel(i + 1, j) + quantizationError * (ALPHA + 1/16.0);
+                GetPixel(i, j + 1) = GetPixel(i, j + 1) + quantizationError * (GAMMA + 1/16.0);
+                GetPixel(i + 1, j + 1) = GetPixel(i + 1, j + 1) + quantizationError * (DELTA + 1/16.0);
                 
             // anywhere else in image
             } else {
-                GetPixel(i + 1, j) = GetPixel(i + 1, j) + originalPixel * ALPHA;
-                GetPixel(i - 1, j + 1) = GetPixel(i - 1, j + 1) + originalPixel * BETA;
-                GetPixel(i, j + 1) = GetPixel(i, j + 1) + originalPixel * GAMMA;
-                GetPixel(i + 1, j + 1) = GetPixel(i + 1, j + 1) + originalPixel * DELTA;
+                GetPixel(i + 1, j) = GetPixel(i + 1, j) + quantizationError * ALPHA;
+                GetPixel(i - 1, j + 1) = GetPixel(i - 1, j + 1) + quantizationError * BETA;
+                GetPixel(i, j + 1) = GetPixel(i, j + 1) + quantizationError * GAMMA;
+                GetPixel(i + 1, j + 1) = GetPixel(i + 1, j + 1) + quantizationError * DELTA;
             }
             
             // TODO: not sure if the clamping code is needed - just figured I'd try it just in case
-            ComponentClamp(GetPixel(i, j).r);
-            ComponentClamp(GetPixel(i, j).g);
-            ComponentClamp(GetPixel(i, j).b);
+            //ComponentClamp(GetPixel(i, j).r);
+            //ComponentClamp(GetPixel(i, j).g);
+            //ComponentClamp(GetPixel(i, j).b);
         }
     }
 }

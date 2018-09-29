@@ -61,6 +61,9 @@ Pixel PixelRandom (void);
 // Component-wise addition of pixels.
 Pixel operator+ (const Pixel& p, const Pixel& q);
 
+// Component-wise subtraction of pixels - gives the numerical difference between the 2 pixels
+Pixel operator- (const Pixel &p, const Pixel &q);
+
     // Component-wise multiplication of pixels.
 Pixel operator* (const Pixel& p, const Pixel& q);
 

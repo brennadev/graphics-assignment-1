@@ -70,6 +70,15 @@ Pixel operator+ (const Pixel& p, const Pixel& q)
 }
 
 
+Pixel operator- (const Pixel &p, const Pixel &q) {
+    return Pixel(
+                 ComponentClamp(p.r - q.r),
+                 ComponentClamp(p.g - q.g),
+                 ComponentClamp(p.b - q.b),
+                 ComponentClamp(p.a - q.a)
+                 );
+}
+
 Pixel operator* (const Pixel& p, const Pixel& q)
 {
     return Pixel(
