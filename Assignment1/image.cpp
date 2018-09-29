@@ -109,7 +109,7 @@ void Image::AddNoise (double factor) {
     }
 }
 
-// TODO: update website with image using new brightness implementation
+
 void Image::Brighten (double factor) {
     int x,y;
     for (x = 0 ; x < Width() ; x++)
@@ -118,9 +118,9 @@ void Image::Brighten (double factor) {
         {
             Pixel p = GetPixel(x, y);
             Pixel scaled_p;
-            scaled_p.r = factor*p.r;
-            scaled_p.g = factor*p.g;
-            scaled_p.b = factor*p.b;
+            scaled_p.r = ComponentClamp(factor*p.r);
+            scaled_p.g = ComponentClamp(factor*p.g);
+            scaled_p.b = ComponentClamp(factor*p.b);
             GetPixel(x,y) = scaled_p;
         }
     }
@@ -290,11 +290,6 @@ void Image::FloydSteinbergDither(int nbits){
                 GetPixel(i, j + 1) = GetPixel(i, j + 1) + quantizationError * GAMMA;
                 GetPixel(i + 1, j + 1) = GetPixel(i + 1, j + 1) + quantizationError * DELTA;
             }
-            
-            // TODO: not sure if the clamping code is needed - just figured I'd try it just in case
-            //ComponentClamp(GetPixel(i, j).r);
-            //ComponentClamp(GetPixel(i, j).g);
-            //ComponentClamp(GetPixel(i, j).b);
         }
     }
 }
