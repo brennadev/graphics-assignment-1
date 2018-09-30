@@ -297,14 +297,36 @@ void Image::FloydSteinbergDither(int nbits){
 
 void Image::Blur(int n) {
     
+    // TODO: eventually replace the array sizes with n
     float filter[3][3];
     
+    // TODO: eventually replace the hardcoded value with the one below it (that's currently commented out)
+    int filterTotalNumberOfElements = 9;
+    //int filterTotalNumberOfElements = n * n;
+    
     // actual convolution
+    // go through each location in the image
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
             
+            // TODO: eventually replace the array sizes with n
+            // location of intermediate values after multiplication
+            Pixel currentlyMultipliedByFilter[3][3];
+            
+            // so the correct location in the image is multiplied by the corresponding filter location
+            int currentImageLocationForFilterX = n / 2;
+            int currentImageLocationForFilterY = n / 2;
             
             
+            // go through each location in the filter and multiply
+            for (int k = 0; k < n; k++) {
+                for (int l = 0; l < n; l++) {
+                    currentlyMultipliedByFilter[k][l] = GetPixel(i + currentImageLocationForFilterX, j + currentImageLocationForFilterY) * filter[k][l];
+                    
+                    currentImageLocationForFilterY++;
+                }
+                currentImageLocationForFilterX++;
+            }
             
             GetPixel(i + n / 2, j + n / 2) = GetPixel(i + n / 2, j + n / 2) * filter[i][j];
             
@@ -390,8 +412,8 @@ void Image::EdgeDetect() {
 // TODO: test this function; it should be complete, but Sample isn't implemented yet, so I can't test it
 Image* Image::Scale(double sx, double sy) {
     
-    // we want to make sure we don't modify the original image
-    Image *scaledImage = new Image(*this);
+    // we need to an image the size of what the current image is after it's scaled
+    Image *scaledImage = new Image(sx / width, sy / height);
     
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
@@ -404,6 +426,10 @@ Image* Image::Scale(double sx, double sy) {
 
 // TODO: test this function; it should be complete, but Sample isn't implemented yet, so I can't test it
 Image* Image::Rotate(double angle) {
+    
+    // TODO: I know that rotation is somehow going to need to account for the image size growing (but how do you know how much the image size grows before you've done the rotation?)
+    
+    
     // we want to make sure we don't modify the original image
     Image *rotatedImage = new Image(*this);
     
@@ -414,11 +440,18 @@ Image* Image::Rotate(double angle) {
         }
     }
     
+    
+    
     return rotatedImage;
 }
 
+
 void Image::Fun() {
-    /* WORK HERE */
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            
+        }
+    }
 }
 
 /**
@@ -432,6 +465,8 @@ void Image::SetSamplingMethod(int method)
 
 // TODO: finish this
 Pixel Image::Sample (double u, double v){
+    
+    
     switch (sampling_method) {
         case IMAGE_SAMPLING_POINT:
             
