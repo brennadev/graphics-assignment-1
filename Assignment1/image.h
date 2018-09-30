@@ -134,6 +134,8 @@ public:
     // Converts and image to nbits per channel using random dither.
     void RandomDither(int nbits);
     
+    
+    
     // Blurs an image with an n x n Gaussian filter.
     void Blur(int n);
     
