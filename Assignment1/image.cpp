@@ -298,7 +298,7 @@ void Image::FloydSteinbergDither(int nbits){
 void Image::Blur(int n) {
     
     // when doing the convolution math, we always need to pull from the original image, not the partially blurred version of the original image
-    Image originalImage = Image(*this);
+    Image *originalImage = new Image(*this);
     
     // TODO: eventually replace the array sizes with n
     float filter[3][3];
@@ -306,7 +306,7 @@ void Image::Blur(int n) {
     // TODO: where actual Gaussian filter calculation goes eventually
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
-            filter[i][j] = 0.1;
+            filter[i][j] = 0.5;
         }
     }
     
@@ -324,9 +324,9 @@ void Image::Blur(int n) {
             Pixel currentlyMultipliedByFilter[3][3];
             
             // so the correct location in the image is multiplied by the corresponding filter location - increment by 1 as necessary
-            int currentImageLocationForFilterX = n / 2;
-            int currentImageLocationForFilterY = n / 2;
-            
+            int currentImageLocationForFilterX = -1 * n / 2;
+            int currentImageLocationForFilterY = -1 * n / 2;
+            // fixed the values above so they're multiplied by -1 (as they should've been but weren't); this still doesn't cause things to work
             
             // go through each location in the filter and multiply
             for (int k = 0; k < n; k++) {
@@ -336,6 +336,9 @@ void Image::Blur(int n) {
                     // start with default locations
                     int xLocationInImageToMultiply = i + currentImageLocationForFilterX;
                     int yLocationInImageToMultiply = j + currentImageLocationForFilterY;
+                    
+                   // cout << "xLocationInImageToMultiply original: " << xLocationInImageToMultiply << endl;
+                   // cout << "yLocationInImageToMultiply original: " << yLocationInImageToMultiply << endl;
                     
                     // if x goes off the left edge
                     if (i + currentImageLocationForFilterX < 0) {
@@ -356,8 +359,24 @@ void Image::Blur(int n) {
                     }
                     
                     // the corrected locations get passed to the multiplication so it always will work
-                    currentlyMultipliedByFilter[k][l] = originalImage.GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply) * filter[k][l];
+                    currentlyMultipliedByFilter[k][l] = originalImage->GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply) * filter[k][l];
                     
+                    
+                   //cout << "xLocationInImageToMultiply: " << xLocationInImageToMultiply << endl;
+                    //cout << "yLocationInImagetoMultiply: " << yLocationInImageToMultiply << endl;
+                    
+                    // everything in the original image is 0 (remember that it's a copy)
+                    
+                    //cout << "original image red: " << (int)originalImage.GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply).r << endl;
+                    //cout << "original image green: " << (int)originalImage.GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply).g << endl;
+                    //cout << "original image blue: " << (int)originalImage.GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply).b << endl;
+                    
+                    
+                    
+                    
+                    // I worked through the entire first iteration in the debugger (including passing in the actual variables for the full statement), and it all looks ok (I also manually checked the first pixel of the image)
+                    // originalImage also appears to be assigned correctly for the first value, but it's 0 for the rest (mistake in the copy constructor?)
+                    // I'm trying assigning as a pointer, but that shouldn't make a difference; I haven't tested anything yet though
                     currentImageLocationForFilterY++;
                 }
                 currentImageLocationForFilterX++;
@@ -370,11 +389,22 @@ void Image::Blur(int n) {
             
             for (int k = 0; k < n; k++) {
                 for (int l = 0; l < n; l++) {
+                    // everything is 0 at this point
                     redTotal += currentlyMultipliedByFilter[k][l].r;
                     greenTotal += currentlyMultipliedByFilter[k][l].g;
                     blueTotal += currentlyMultipliedByFilter[k][l].b;
+                    
+                    //cout << "currentlyMultipliedByFilter red: " << (int)currentlyMultipliedByFilter[k][l].r << endl;
+                    //cout << "currentlyMultipliedByFilter green: " << (int)currentlyMultipliedByFilter[k][l].g << endl;
+                    //cout << "currentlyMultipliedByFilter blue: " << (int)currentlyMultipliedByFilter[k][l].b << endl;
                 }
             }
+            
+            // everything is 0 at this step
+            
+            //cout << "redTotal: " << redTotal << endl;
+           // cout << "greenTotal: " << greenTotal << endl;
+            //cout << "blueTotal: " << blueTotal << endl;
             
             // actually take the averages - no clamping should be needed as all the original values are between 0 and 255
             redTotal /= filterTotalNumberOfElements;
@@ -449,7 +479,13 @@ void Image::Sharpen(int n) {
     }
 }
 
+
 void Image::EdgeDetect() {
+    // the filter for edge detect is always the same
+    float filter[3][3] = {{ -1, -1, -1 },
+                          { -1, 8, -1 },
+                          { -1, -1, -1 }};
+    
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
             
