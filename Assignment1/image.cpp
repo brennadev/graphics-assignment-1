@@ -303,6 +303,13 @@ void Image::Blur(int n) {
     // TODO: eventually replace the array sizes with n
     float filter[3][3];
     
+    // TODO: where actual Gaussian filter calculation goes eventually
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            filter[i][j] = 0.1;
+        }
+    }
+    
     // TODO: eventually replace the hardcoded value with the one below it (that's currently commented out)
     int filterTotalNumberOfElements = 9;
     //int filterTotalNumberOfElements = n * n;
@@ -315,9 +322,6 @@ void Image::Blur(int n) {
             // TODO: eventually replace the array sizes with n
             // location of intermediate values after multiplication
             Pixel currentlyMultipliedByFilter[3][3];
-            
-            // for use later when taking average - DO NOT CLAMP
-            //Pixel filterMultipliedSum = Pixel(0, 0, 0, 1);
             
             // so the correct location in the image is multiplied by the corresponding filter location - increment by 1 as necessary
             int currentImageLocationForFilterX = n / 2;
@@ -354,8 +358,6 @@ void Image::Blur(int n) {
                     // the corrected locations get passed to the multiplication so it always will work
                     currentlyMultipliedByFilter[k][l] = originalImage.GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply) * filter[k][l];
                     
-                    //filterMultipliedSum = filterMultipliedSum + GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply) * filter[k][l];
-                    
                     currentImageLocationForFilterY++;
                 }
                 currentImageLocationForFilterX++;
@@ -365,7 +367,6 @@ void Image::Blur(int n) {
             int redTotal = 0;
             int greenTotal = 0;
             int blueTotal = 0;
-            
             
             for (int k = 0; k < n; k++) {
                 for (int l = 0; l < n; l++) {
@@ -384,16 +385,6 @@ void Image::Blur(int n) {
             GetPixel(i, j).r = redTotal;
             GetPixel(i, j).g = greenTotal;
             GetPixel(i, j).b = blueTotal;
-            
-            //GetPixel(i + n / 2, j + n / 2) = GetPixel(i + n / 2, j + n / 2) * filter[i][j];
-            
-            // for values that are near the edge, make sure that that gets handled properly by extending the edge
-            // when x is close to the edge
-            /*if (i - n / 2 < 0) {
-                <#statements#>
-            }*/
-            
-            
         }
     }
     
