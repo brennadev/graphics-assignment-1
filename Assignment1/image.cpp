@@ -425,7 +425,9 @@ void Image::Sharpen(int n) {
     
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
-            GetPixel(i, j) = PixelLerp(GetPixel(i, j), blurredImage.GetPixel(i, j), 2);
+            // I think the top one is the correct one (bottom one produces an all-black image)
+            GetPixel(i, j) = PixelLerp(blurredImage.GetPixel(i, j), GetPixel(i, j), 2);
+            //GetPixel(i, j) = PixelLerp(GetPixel(i, j), blurredImage.GetPixel(i, j), 2);
         }
     }
 }
@@ -537,10 +539,10 @@ void Image::EdgeDetect() {
 Image* Image::Scale(double sx, double sy) {
     
     // we need to an image the size of what the current image is after it's scaled
-    Image *scaledImage = new Image(sx / width, sy / height);
+    Image *scaledImage = new Image(width * sx, height * sy);
     
-    for (int i = 0; i < width; i++) {
-        for (int j = 0; j < height; j++) {
+    for (int i = 0; i < scaledImage->width; i++) {
+        for (int j = 0; j < scaledImage->height; j++) {
             scaledImage->GetPixel(i, j) = Sample(i / sx, j / sy);
         }
     }
@@ -554,11 +556,11 @@ Image* Image::Rotate(double angle) {
     // TODO: I know that rotation is somehow going to need to account for the image size growing (but how do you know how much the image size grows before you've done the rotation?)
     
     
-    // we want to make sure we don't modify the original image
+    
     Image *rotatedImage = new Image(*this);
     
-    for (int i = 0; i < width; i++) {
-        for (int j = 0; j < height; j++) {
+    for (int i = 0; i < rotatedImage->width; i++) {
+        for (int j = 0; j < rotatedImage->height; j++) {
             rotatedImage->GetPixel(i, j) = Sample(i * cos(-1 * angle) - j * sin(-1 * angle),
                                                   i * sin(-1 * angle) + j * cos(-1 * angle));
         }
@@ -593,7 +595,7 @@ Pixel Image::Sample (double u, double v){
     
     switch (sampling_method) {
         case IMAGE_SAMPLING_POINT:
-            
+            return GetPixel(u, v);
             break;
             
         case IMAGE_SAMPLING_BILINEAR:
