@@ -303,7 +303,36 @@ void Image::Blur(int n) {
     float filter[n][n];
     
     
-    //
+    // set up the Gaussian filter
+    
+    // use an intermediary array to store the possible Gaussian values
+    float intermediary[n / 2 + 1];
+    
+    // calculate all possible Gaussian values to later be put into the filter
+    for (int i = 0; i <= n / 2; i++) {
+        intermediary[i] = (1.0 / sqrt(2.0 * M_PI)) * pow(M_E, -1.0 * pow(i, 2.0) / 2.0);
+    }
+    
+    // center position in the filter
+    int center = n / 2;
+    
+    // needed for normalization
+    float total = 0.0;
+    
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            filter[i][j] = intermediary[max(abs(center - i), abs(center - j))];
+            total += filter[i][j];
+        }
+    }
+    
+    // normalize
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            filter[i][j] /= total;
+            cout << "filter at x= " << i << " and y= " << j << "is " << filter[i][j] << endl;
+        }
+    }
     
     
     // when doing the convolution math, we always need to pull from the original image, not the partially blurred version of the original image
@@ -312,11 +341,11 @@ void Image::Blur(int n) {
     
     
     // TODO: where actual Gaussian filter calculation goes eventually
-    for (int i = 0; i < n; i++) {
+    /*for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             filter[i][j] = 0.5;
         }
-    }
+    }*/
     
     // for use after all pixels are read
     int filterTotalNumberOfElements = n * n;
@@ -536,11 +565,15 @@ void Image::EdgeDetect() {
             
             for (int k = 0; k < n; k++) {
                 for (int l = 0; l < n; l++) {
-                    redTotal += currentlyMultipliedByFilter[k][l].r;
-                    greenTotal += currentlyMultipliedByFilter[k][l].g;
-                    blueTotal += currentlyMultipliedByFilter[k][l].b;
+                    redTotal += ComponentClamp(currentlyMultipliedByFilter[k][l].r);
+                    greenTotal += ComponentClamp(currentlyMultipliedByFilter[k][l].g);
+                    blueTotal += ComponentClamp(currentlyMultipliedByFilter[k][l].b);
                 }
             }
+            
+            redTotal = ComponentClamp(redTotal);
+            greenTotal = ComponentClamp(greenTotal);
+            blueTotal = ComponentClamp(blueTotal);
             
             
             // actually take the averages - no clamping should be needed as all the original values are between 0 and 255
@@ -549,9 +582,9 @@ void Image::EdgeDetect() {
             blueTotal /= filterTotalNumberOfElements;
             
             // finally, put it back in the original
-            GetPixel(i, j).r = redTotal;
-            GetPixel(i, j).g = greenTotal;
-            GetPixel(i, j).b = blueTotal;
+            GetPixel(i, j).r = ComponentClamp(redTotal);
+            GetPixel(i, j).g = ComponentClamp(greenTotal);
+            GetPixel(i, j).b = ComponentClamp(blueTotal);
         }
     }
     
