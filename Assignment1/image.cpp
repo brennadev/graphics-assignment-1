@@ -297,8 +297,6 @@ void Image::FloydSteinbergDither(int nbits){
 
 void Image::Blur(int n) {
     
-    // set up the filter
-    
 
     float filter[n][n];
     
@@ -311,6 +309,7 @@ void Image::Blur(int n) {
     // calculate all possible Gaussian values to later be put into the filter
     for (int i = 0; i <= n / 2; i++) {
         intermediary[i] = (1.0 / sqrt(2.0 * M_PI)) * pow(M_E, -1.0 * pow(i, 2.0) / 2.0);
+        cout << "intermediary at " << i << " is " << intermediary[i] << endl;
     }
     
     // center position in the filter
@@ -321,6 +320,7 @@ void Image::Blur(int n) {
     
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
+            cout << "intermediary value being retrieved for i = " << i << " and j = " << j << " is " << max(abs(center - i), abs(center - j)) << endl;
             filter[i][j] = intermediary[max(abs(center - i), abs(center - j))];
             total += filter[i][j];
         }
@@ -330,7 +330,7 @@ void Image::Blur(int n) {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             filter[i][j] /= total;
-            cout << "filter at x= " << i << " and y= " << j << "is " << filter[i][j] << endl;
+            cout << "filter at x= " << i << " and y= " << j << " is " << filter[i][j] << endl;
         }
     }
     
@@ -338,15 +338,7 @@ void Image::Blur(int n) {
     // when doing the convolution math, we always need to pull from the original image, not the partially blurred version of the original image
     Image *originalImage = new Image(*this);
     
-    
-    
-    // TODO: where actual Gaussian filter calculation goes eventually
-    /*for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            filter[i][j] = 0.5;
-        }
-    }*/
-    
+
     // for use after all pixels are read
     int filterTotalNumberOfElements = n * n;
     
@@ -404,9 +396,9 @@ void Image::Blur(int n) {
             
             for (int k = 0; k < n; k++) {
                 for (int l = 0; l < n; l++) {
-                    redTotal += currentlyMultipliedByFilter[k][l].r;
-                    greenTotal += currentlyMultipliedByFilter[k][l].g;
-                    blueTotal += currentlyMultipliedByFilter[k][l].b;
+                    redTotal += ComponentClamp(currentlyMultipliedByFilter[k][l].r);
+                    greenTotal += ComponentClamp(currentlyMultipliedByFilter[k][l].g);
+                    blueTotal += ComponentClamp(currentlyMultipliedByFilter[k][l].b);
                 }
             }
             
@@ -422,52 +414,6 @@ void Image::Blur(int n) {
             GetPixel(i, j).b = blueTotal;
         }
     }
-    
-    
-    
-    
-    // TODO: a bunch of old code - not sure what of this I'll need to keep
-    
-    // Values that get passed to the Gaussian function later on
-    /*float valuesToPassToGaussian[n];
-    // The current location from 0 to add points at in valuesToPass
-    float currentPoint;
-    
-    
-    // must treat odd and even n differently
-    if (n % 2 == 0) {
-        currentPoint = 0.5;
-
-        // Each point is going out from the center with a difference of 1, starting with 0.5 and -0.5. For example, if n == 6, then valuesToPass will be [-2.5, -1.5, -0.5, 0.5, 1.5, 2.5] after the loop finishes.
-        for (int i = 0; i < (n - 2) / 2; i++) {
-            valuesToPassToGaussian[n / 2 - 1 + i] = currentPoint;     // to right of center
-            valuesToPassToGaussian[n / 2 - i] = -1 * currentPoint;    // to left of center
-        }
-    } else {
-        // set the center point to 0
-        valuesToPassToGaussian[n / 2] = 0;
-        currentPoint = 1;
-        
-        // Each point is going out from the center with a difference of 1. The center point is at 0, so this means the next points are at -1 and 1. For example, if n == 7, then valuesToPass will be [-3, -2, -1, 0, 1, 2, 3] after the loop finishes.
-        for (int i = 1; i <= (n - 1) / 2; i++) {
-            valuesToPassToGaussian[n / 2 + i] = currentPoint;         // to right of center
-            valuesToPassToGaussian[n / 2 - i] = -1 * currentPoint;    // to left of center
-        }
-    }
-    
-    // the 1D array that's filled after performing the Gaussian function on all positions
-    float valuesAfterGaussian1D[n];
-    
-    // multiply each of these positions by the Gaussian function - always using a standard deviation of 1
-    for (int i = 0; i < n; i++) {
-        valuesAfterGaussian1D[i] = (1 / sqrt(2 * M_PI)) * pow(M_E, -1 * pow(valuesToPassToGaussian[i], 2) / 2);
-    }
-
-    // then we need to multiply these together to get the Gaussian filter that we'll work with
-    // The Gaussian filter (populated after loop below)
-    float gaussianFilter[n][n];
-    
-*/
 }
 
 
