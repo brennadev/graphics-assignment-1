@@ -437,25 +437,14 @@ void Image::EdgeDetect() {
     Image *originalImage = new Image(*this);
     
     
-    
     const int n = 3;
-    
-    // TODO: put the convolution code below the filter declaration once it works in the blur code
-    // TODO: put a call to blur after detecting edges to smooth it out (once blur works)
+
     // the filter for edge detect is always the same
     float filter[n][n] = {{ -1, -1, -1 },
                           { -1, 8, -1 },
                           { -1, -1, -1 }};
     
     int filterTotalNumberOfElements = n * n;
-    
-    // can probably just remove this as a bunch of convolution code will just be pasted here (or maybe just put the convolution code in a separate private method that's called by blur and edge detect)
-    for (int i = 0; i < width; i++) {
-        for (int j = 0; j < height; j++) {
-            
-        }
-    }
-    
     
     // actual convolution - this section is identical to the blur code
     // go through each location in the image
@@ -497,7 +486,11 @@ void Image::EdgeDetect() {
                     }
                     
                     // the corrected locations get passed to the multiplication so it always will work
-                    currentlyMultipliedByFilter[k][l] = originalImage->GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply) * filter[k][l];
+
+                    // where I tried multiplying each channel individually so I knew that no clamping should be happening
+                    currentlyMultipliedByFilter[k][l].r = originalImage->GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply).r * filter[k][l];
+                    currentlyMultipliedByFilter[k][l].g = originalImage->GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply).g * filter[k][l];
+                    currentlyMultipliedByFilter[k][l].b = originalImage->GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply).b * filter[k][l];
                     
                     currentImageLocationForFilterY++;
                 }
@@ -511,9 +504,9 @@ void Image::EdgeDetect() {
             
             for (int k = 0; k < n; k++) {
                 for (int l = 0; l < n; l++) {
-                    redTotal += ComponentClamp(currentlyMultipliedByFilter[k][l].r);
-                    greenTotal += ComponentClamp(currentlyMultipliedByFilter[k][l].g);
-                    blueTotal += ComponentClamp(currentlyMultipliedByFilter[k][l].b);
+                    redTotal += /*ComponentClamp(*/currentlyMultipliedByFilter[k][l].r/*)*/;
+                    greenTotal += /*ComponentClamp(*/currentlyMultipliedByFilter[k][l].g/*)*/;
+                    blueTotal += /*ComponentClamp(*/currentlyMultipliedByFilter[k][l].b/*)*/;
                 }
             }
             
