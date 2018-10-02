@@ -341,113 +341,6 @@ void Image::Blur(int n) {
     // for use after all pixels are read
     int filterTotalNumberOfElements = n * n;
     
-    // actual convolution
-    // go through each location in the image
-    for (int i = 0; i < width; i++) {
-        for (int j = 0; j < height; j++) {
-            
-            // location of intermediate values after multiplication
-            Pixel currentlyMultipliedByFilter[n][n];
-            
-            // so the correct location in the image is multiplied by the corresponding filter location - increment by 1 as necessary
-            int currentImageLocationForFilterX = -1 * n / 2;
-            int currentImageLocationForFilterY = -1 * n / 2;
-            
-            // go through each location in the filter and multiply
-            for (int k = 0; k < n; k++) {
-                for (int l = 0; l < n; l++) {
-                    
-                    // take care of the edges by extending the pixels closest to the edges
-                    // start with default locations
-                    int xLocationInImageToMultiply = i + currentImageLocationForFilterX;
-                    int yLocationInImageToMultiply = j + currentImageLocationForFilterY;
-                    
-                    // if x goes off the left edge
-                    if (i + currentImageLocationForFilterX < 0) {
-                        xLocationInImageToMultiply = 0;
-                        
-                    // if x goes off the right edge
-                    } else if (i + currentImageLocationForFilterX >= width) {
-                        xLocationInImageToMultiply = width - 1;
-                    }
-                    
-                    // if y goes off the top edge
-                    if (j + currentImageLocationForFilterY < 0) {
-                        yLocationInImageToMultiply = 0;
-                        
-                    // if y goes off the bottom edge
-                    } else if (j + currentImageLocationForFilterY >= height) {
-                        yLocationInImageToMultiply = height - 1;
-                    }
-                    
-                    // the corrected locations get passed to the multiplication so it always will work
-                    currentlyMultipliedByFilter[k][l] = originalImage->GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply) * filter[k][l];
-                    
-                    currentImageLocationForFilterY++;
-                }
-                currentImageLocationForFilterX++;
-            }
-            
-            // due to clamping, averaging the components needs to be done by channel (ignoring alpha)
-            int redTotal = 0;
-            int greenTotal = 0;
-            int blueTotal = 0;
-            
-            for (int k = 0; k < n; k++) {
-                for (int l = 0; l < n; l++) {
-                    redTotal += ComponentClamp(currentlyMultipliedByFilter[k][l].r);
-                    greenTotal += ComponentClamp(currentlyMultipliedByFilter[k][l].g);
-                    blueTotal += ComponentClamp(currentlyMultipliedByFilter[k][l].b);
-                }
-            }
-            
-            
-            // actually take the averages - no clamping should be needed as all the original values are between 0 and 255
-            redTotal /= filterTotalNumberOfElements;
-            greenTotal /= filterTotalNumberOfElements;
-            blueTotal /= filterTotalNumberOfElements;
-            
-            // finally, put it back in the original
-            GetPixel(i, j).r = redTotal;
-            GetPixel(i, j).g = greenTotal;
-            GetPixel(i, j).b = blueTotal;
-        }
-    }
-}
-
-
-// TODO: test this once blur is implemented; I'm not sure if the interpolation amount will work
-void Image::Sharpen(int n) {
-    // we need to have a blurred copy of the image to work with
-    Image blurredImage = Image(*this);
-    blurredImage.Blur(n);
-    
-    for (int i = 0; i < width; i++) {
-        for (int j = 0; j < height; j++) {
-            // I think the top one is the correct one (bottom one produces an all-black image)
-            GetPixel(i, j) = PixelLerp(blurredImage.GetPixel(i, j), GetPixel(i, j), 2);
-            //GetPixel(i, j) = PixelLerp(GetPixel(i, j), blurredImage.GetPixel(i, j), 2);
-        }
-    }
-}
-
-
-void Image::EdgeDetect() {
-    
-    // when doing the convolution math, we always need to pull from the original image, not the partially edge detected version of the original image
-    Image *originalImage = new Image(*this);
-    
-    
-    const int n = 3;
-
-    // the filter for edge detect is always the same
-    float filter[n][n] = {{ -1, -1, -1 },
-                          { -1, 8, -1 },
-                          { -1, -1, -1 }};
-    
-    int filterTotalNumberOfElements = n * n;
-    
-    // actual convolution - this section is identical to the blur code
     // go through each location in the image
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
@@ -491,7 +384,7 @@ void Image::EdgeDetect() {
                     }
                     
                     // the corrected locations get passed to the multiplication so it always will work
-
+                    
                     // where I tried multiplying each channel individually so I knew that no clamping should be happening
                     currentlyMultipliedByFilterRed[k][l] = (originalImage->GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply).r) / 255.0 * filter[k][l];
                     currentlyMultipliedByFilterGreen[k][l] = (originalImage->GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply).g) / 255.0 * filter[k][l];
@@ -516,6 +409,122 @@ void Image::EdgeDetect() {
                     redTotal += /*ComponentClamp(*/currentlyMultipliedByFilterRed[k][l]/*)*/;
                     greenTotal += /*ComponentClamp(*/currentlyMultipliedByFilterGreen[k][l]/*)*/;
                     blueTotal += /*ComponentClamp(*/currentlyMultipliedByFilterBlue[k][l]/*)*/;
+                }
+            }
+            
+            redTotal = ComponentClamp(redTotal);
+            greenTotal = ComponentClamp(greenTotal);
+            blueTotal = ComponentClamp(blueTotal);
+            
+            
+            // actually take the averages - no clamping should be needed as all the original values are between 0 and 255
+            redTotal /= filterTotalNumberOfElements;
+            greenTotal /= filterTotalNumberOfElements;
+            blueTotal /= filterTotalNumberOfElements;
+            
+            // finally, put it back in the original
+            GetPixel(i, j).r = ComponentClamp(redTotal * 255.0);
+            GetPixel(i, j).g = ComponentClamp(greenTotal * 255.0);
+            GetPixel(i, j).b = ComponentClamp(blueTotal * 255.0);
+        }
+    }
+}
+
+
+// TODO: test this once blur is implemented; I'm not sure if the interpolation amount will work
+void Image::Sharpen(int n) {
+    // we need to have a blurred copy of the image to work with
+    Image blurredImage = Image(*this);
+    blurredImage.Blur(n);
+    
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            // I think the top one is the correct one (bottom one produces an all-black image)
+            GetPixel(i, j) = PixelLerp(blurredImage.GetPixel(i, j), GetPixel(i, j), 2);
+            //GetPixel(i, j) = PixelLerp(GetPixel(i, j), blurredImage.GetPixel(i, j), 2);
+        }
+    }
+}
+
+
+void Image::EdgeDetect() {
+    
+    // when doing the convolution math, we always need to pull from the original image, not the partially edge detected version of the original image
+    Image *originalImage = new Image(*this);
+    
+    
+    const int n = 3;
+
+    // the filter for edge detect is always the same
+    float filter[n][n] = {{ -1, -1, -1 },
+                          { -1, 8, -1 },
+                          { -1, -1, -1 }};
+    
+    int filterTotalNumberOfElements = n * n;
+    
+    // actual convolution - this section is identical to the blur code
+    // go through each location in the image
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            
+            // location of intermediate values after multiplication
+            float currentlyMultipliedByFilterRed[n][n];
+            float currentlyMultipliedByFilterGreen[n][n];
+            float currentlyMultipliedByFilterBlue[n][n];
+            
+            // so the correct location in the image is multiplied by the corresponding filter location - increment by 1 as necessary
+            int currentImageLocationForFilterX = -1 * n / 2;
+            int currentImageLocationForFilterY = -1 * n / 2;
+            
+            // go through each location in the filter and multiply
+            for (int k = 0; k < n; k++) {
+                for (int l = 0; l < n; l++) {
+                    
+                    // take care of the edges by extending the pixels closest to the edges
+                    // start with default locations
+                    int xLocationInImageToMultiply = i + currentImageLocationForFilterX;
+                    int yLocationInImageToMultiply = j + currentImageLocationForFilterY;
+                    
+                    // if x goes off the left edge
+                    if (i + currentImageLocationForFilterX < 0) {
+                        xLocationInImageToMultiply = 0;
+                        
+                        // if x goes off the right edge
+                    } else if (i + currentImageLocationForFilterX >= width) {
+                        xLocationInImageToMultiply = width - 1;
+                    }
+                    
+                    // if y goes off the top edge
+                    if (j + currentImageLocationForFilterY < 0) {
+                        yLocationInImageToMultiply = 0;
+                        
+                        // if y goes off the bottom edge
+                    } else if (j + currentImageLocationForFilterY >= height) {
+                        yLocationInImageToMultiply = height - 1;
+                    }
+                    
+                    // the corrected locations get passed to the multiplication so it always will work
+
+                    // where I tried multiplying each channel individually so I knew that no clamping should be happening
+                    currentlyMultipliedByFilterRed[k][l] = (originalImage->GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply).r) / 255.0 * filter[k][l];
+                    currentlyMultipliedByFilterGreen[k][l] = (originalImage->GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply).g) / 255.0 * filter[k][l];
+                    currentlyMultipliedByFilterBlue[k][l] = (originalImage->GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply).b) / 255.0 * filter[k][l];
+                    
+                    currentImageLocationForFilterY++;
+                }
+                currentImageLocationForFilterX++;
+            }
+            
+            // due to clamping, averaging the components needs to be done by channel (ignoring alpha)
+            float redTotal = 0.0;
+            float greenTotal = 0.0;
+            float blueTotal = 0.0;
+            
+            for (int k = 0; k < n; k++) {
+                for (int l = 0; l < n; l++) {
+                    redTotal += currentlyMultipliedByFilterRed[k][l];
+                    greenTotal += currentlyMultipliedByFilterGreen[k][l];
+                    blueTotal += currentlyMultipliedByFilterBlue[k][l];
                 }
             }
             
