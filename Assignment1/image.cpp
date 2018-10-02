@@ -296,7 +296,6 @@ void Image::FloydSteinbergDither(int nbits){
 
 
 void Image::Blur(int n) {
-    
 
     float filter[n][n];
     
@@ -454,7 +453,11 @@ void Image::EdgeDetect() {
         for (int j = 0; j < height; j++) {
             
             // location of intermediate values after multiplication
-            Pixel currentlyMultipliedByFilter[n][n];
+            //Pixel currentlyMultipliedByFilter[n][n];
+            
+            float currentlyMultipliedByFilterRed[n][n];
+            float currentlyMultipliedByFilterGreen[n][n];
+            float currentlyMultipliedByFilterBlue[n][n];
             
             // so the correct location in the image is multiplied by the corresponding filter location - increment by 1 as necessary
             int currentImageLocationForFilterX = -1 * n / 2;
@@ -490,9 +493,13 @@ void Image::EdgeDetect() {
                     // the corrected locations get passed to the multiplication so it always will work
 
                     // where I tried multiplying each channel individually so I knew that no clamping should be happening
-                    currentlyMultipliedByFilter[k][l].r = originalImage->GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply).r * filter[k][l];
-                    currentlyMultipliedByFilter[k][l].g = originalImage->GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply).g * filter[k][l];
-                    currentlyMultipliedByFilter[k][l].b = originalImage->GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply).b * filter[k][l];
+                    currentlyMultipliedByFilterRed[k][l] = (originalImage->GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply).r) / 255.0 * filter[k][l];
+                    currentlyMultipliedByFilterGreen[k][l] = (originalImage->GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply).g) / 255.0 * filter[k][l];
+                    currentlyMultipliedByFilterBlue[k][l] = (originalImage->GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply).b) / 255.0 * filter[k][l];
+                    
+                    //cout << "red: " << (int)currentlyMultipliedByFilter[k][l].r << endl;
+                    //cout << "green: " << (int)currentlyMultipliedByFilter[k][l].g << endl;
+                    //cout << "blue: " << (int)currentlyMultipliedByFilter[k][l].b << endl;
                     
                     currentImageLocationForFilterY++;
                 }
@@ -500,15 +507,15 @@ void Image::EdgeDetect() {
             }
             
             // due to clamping, averaging the components needs to be done by channel (ignoring alpha)
-            int redTotal = 0;
-            int greenTotal = 0;
-            int blueTotal = 0;
+            float redTotal = 0.0;
+            float greenTotal = 0.0;
+            float blueTotal = 0.0;
             
             for (int k = 0; k < n; k++) {
                 for (int l = 0; l < n; l++) {
-                    redTotal += /*ComponentClamp(*/currentlyMultipliedByFilter[k][l].r/*)*/;
-                    greenTotal += /*ComponentClamp(*/currentlyMultipliedByFilter[k][l].g/*)*/;
-                    blueTotal += /*ComponentClamp(*/currentlyMultipliedByFilter[k][l].b/*)*/;
+                    redTotal += /*ComponentClamp(*/currentlyMultipliedByFilterRed[k][l]/*)*/;
+                    greenTotal += /*ComponentClamp(*/currentlyMultipliedByFilterGreen[k][l]/*)*/;
+                    blueTotal += /*ComponentClamp(*/currentlyMultipliedByFilterBlue[k][l]/*)*/;
                 }
             }
             
@@ -523,16 +530,11 @@ void Image::EdgeDetect() {
             blueTotal /= filterTotalNumberOfElements;
             
             // finally, put it back in the original
-            GetPixel(i, j).r = ComponentClamp(redTotal);
-            GetPixel(i, j).g = ComponentClamp(greenTotal);
-            GetPixel(i, j).b = ComponentClamp(blueTotal);
+            GetPixel(i, j).r = ComponentClamp(redTotal * 255.0);
+            GetPixel(i, j).g = ComponentClamp(greenTotal * 255.0);
+            GetPixel(i, j).b = ComponentClamp(blueTotal * 255.0);
         }
     }
-    
-    
-    
-    
-    
 }
 
 // TODO: test this function; it should be complete, but Sample isn't implemented yet, so I can't test it
@@ -553,11 +555,8 @@ Image* Image::Scale(double sx, double sy) {
 // TODO: test this function; it should be complete, but Sample isn't implemented yet, so I can't test it
 Image* Image::Rotate(double angle) {
     
-    // TODO: I know that rotation is somehow going to need to account for the image size growing (but how do you know how much the image size grows before you've done the rotation?)
-    
-    
-    
-    Image *rotatedImage = new Image(*this);
+    // just make a really large image
+    Image *rotatedImage = new Image(1000, 1000);
     
     for (int i = 0; i < rotatedImage->width; i++) {
         for (int j = 0; j < rotatedImage->height; j++) {
@@ -575,7 +574,7 @@ Image* Image::Rotate(double angle) {
 void Image::Fun() {
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
-            
+            GetPixel(i, j) = Sample(pow(i, 2), pow(j, 3));
         }
     }
 }
@@ -599,6 +598,12 @@ Pixel Image::Sample (double u, double v){
             break;
             
         case IMAGE_SAMPLING_BILINEAR:
+            /*int uCeiling = ceil(u);
+            int uFloor = floor(u);
+            int vCeiling = ceil(v);
+            int vFloor = ceil(v);*/
+            
+            //return PixelLerp(GetPixel(floor(u), floor(v)), GetPixel(ceil(u), ceil(v)), <#double t#>)
             break;
             
         case IMAGE_SAMPLING_GAUSSIAN:
