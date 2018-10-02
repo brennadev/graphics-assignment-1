@@ -341,16 +341,13 @@ void Image::Blur(int n) {
     // for use after all pixels are read
     int filterTotalNumberOfElements = n * n;
     
+    // actual convolution
     // go through each location in the image
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
             
             // location of intermediate values after multiplication
-            //Pixel currentlyMultipliedByFilter[n][n];
-            
-            float currentlyMultipliedByFilterRed[n][n];
-            float currentlyMultipliedByFilterGreen[n][n];
-            float currentlyMultipliedByFilterBlue[n][n];
+            Pixel currentlyMultipliedByFilter[n][n];
             
             // so the correct location in the image is multiplied by the corresponding filter location - increment by 1 as necessary
             int currentImageLocationForFilterX = -1 * n / 2;
@@ -369,7 +366,7 @@ void Image::Blur(int n) {
                     if (i + currentImageLocationForFilterX < 0) {
                         xLocationInImageToMultiply = 0;
                         
-                        // if x goes off the right edge
+                    // if x goes off the right edge
                     } else if (i + currentImageLocationForFilterX >= width) {
                         xLocationInImageToMultiply = width - 1;
                     }
@@ -378,21 +375,13 @@ void Image::Blur(int n) {
                     if (j + currentImageLocationForFilterY < 0) {
                         yLocationInImageToMultiply = 0;
                         
-                        // if y goes off the bottom edge
+                    // if y goes off the bottom edge
                     } else if (j + currentImageLocationForFilterY >= height) {
                         yLocationInImageToMultiply = height - 1;
                     }
                     
                     // the corrected locations get passed to the multiplication so it always will work
-                    
-                    // where I tried multiplying each channel individually so I knew that no clamping should be happening
-                    currentlyMultipliedByFilterRed[k][l] = (originalImage->GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply).r) / 255.0 * filter[k][l];
-                    currentlyMultipliedByFilterGreen[k][l] = (originalImage->GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply).g) / 255.0 * filter[k][l];
-                    currentlyMultipliedByFilterBlue[k][l] = (originalImage->GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply).b) / 255.0 * filter[k][l];
-                    
-                    //cout << "red: " << (int)currentlyMultipliedByFilter[k][l].r << endl;
-                    //cout << "green: " << (int)currentlyMultipliedByFilter[k][l].g << endl;
-                    //cout << "blue: " << (int)currentlyMultipliedByFilter[k][l].b << endl;
+                    currentlyMultipliedByFilter[k][l] = originalImage->GetPixel(xLocationInImageToMultiply, yLocationInImageToMultiply) * filter[k][l];
                     
                     currentImageLocationForFilterY++;
                 }
@@ -400,21 +389,17 @@ void Image::Blur(int n) {
             }
             
             // due to clamping, averaging the components needs to be done by channel (ignoring alpha)
-            float redTotal = 0.0;
-            float greenTotal = 0.0;
-            float blueTotal = 0.0;
+            int redTotal = 0;
+            int greenTotal = 0;
+            int blueTotal = 0;
             
             for (int k = 0; k < n; k++) {
                 for (int l = 0; l < n; l++) {
-                    redTotal += /*ComponentClamp(*/currentlyMultipliedByFilterRed[k][l]/*)*/;
-                    greenTotal += /*ComponentClamp(*/currentlyMultipliedByFilterGreen[k][l]/*)*/;
-                    blueTotal += /*ComponentClamp(*/currentlyMultipliedByFilterBlue[k][l]/*)*/;
+                    redTotal += ComponentClamp(currentlyMultipliedByFilter[k][l].r);
+                    greenTotal += ComponentClamp(currentlyMultipliedByFilter[k][l].g);
+                    blueTotal += ComponentClamp(currentlyMultipliedByFilter[k][l].b);
                 }
             }
-            
-            redTotal = ComponentClamp(redTotal);
-            greenTotal = ComponentClamp(greenTotal);
-            blueTotal = ComponentClamp(blueTotal);
             
             
             // actually take the averages - no clamping should be needed as all the original values are between 0 and 255
@@ -423,9 +408,9 @@ void Image::Blur(int n) {
             blueTotal /= filterTotalNumberOfElements;
             
             // finally, put it back in the original
-            GetPixel(i, j).r = ComponentClamp(redTotal * 255.0);
-            GetPixel(i, j).g = ComponentClamp(greenTotal * 255.0);
-            GetPixel(i, j).b = ComponentClamp(blueTotal * 255.0);
+            GetPixel(i, j).r = redTotal;
+            GetPixel(i, j).g = greenTotal;
+            GetPixel(i, j).b = blueTotal;
         }
     }
 }
